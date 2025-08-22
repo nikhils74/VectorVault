@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-"""
-Simple launcher script for the Document Chat Assistant Streamlit app.
-This script ensures all dependencies are available and launches the app.
-"""
 
 import subprocess
 import sys

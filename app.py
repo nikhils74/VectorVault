@@ -9,11 +9,10 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_community.llms.ollama import Ollama
 from get_embedding_function import get_embedding_function
 
-# Constants
+
 CHROMA_PATH = "chroma"
 DATA_PATH = "data"
 
-# Page configuration
 st.set_page_config(
     page_title="Document Chat Assistant",
     page_icon="",
@@ -21,7 +20,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for better styling
+
 st.markdown("""
 <style>
     .chat-message {
@@ -194,7 +193,7 @@ def save_uploaded_file(uploaded_file):
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
         
-        # Verify file was saved
+        
         if os.path.exists(file_path):
             file_size = os.path.getsize(file_path)
             return file_path, file_size
@@ -213,10 +212,10 @@ def check_database_status():
         db = Chroma(persist_directory=CHROMA_PATH, embedding_function=get_embedding_function())
         existing_items = db.get(include=[])
         doc_count = len(existing_items["ids"])
-        # Properly close the connection
+        
         del db
         import gc
-        gc.collect()  # Force garbage collection
+        gc.collect() 
         return True, doc_count
     except Exception as e:
         st.warning(f"Database check failed: {str(e)}")
@@ -228,10 +227,10 @@ def clear_database():
         import time
         import gc
         
-        # Force garbage collection to release any held references
+       
         gc.collect()
         
-        # Clear all PDF files from data directory first
+      
         if os.path.exists(DATA_PATH):
             pdf_files = [f for f in os.listdir(DATA_PATH) if f.lower().endswith('.pdf')]
             deleted_count = 0
@@ -248,11 +247,11 @@ def clear_database():
             elif pdf_files:
                 st.warning("Some PDF files could not be deleted")
         
-        # Clear vector database using a different approach
+        
         if os.path.exists(CHROMA_PATH):
-            # Try to delete individual files instead of the whole directory
+            
             try:
-                # List all files in the chroma directory
+               
                 for root, dirs, files in os.walk(CHROMA_PATH, topdown=False):
                     for file in files:
                         try:
@@ -268,13 +267,13 @@ def clear_database():
                         except Exception as e:
                             st.warning(f"Could not delete directory {dir}: {str(e)}")
                 
-                # Try to remove the main chroma directory
+                
                 try:
                     os.rmdir(CHROMA_PATH)
                     st.success("Vector database cleared successfully!")
                 except Exception as e:
                     st.warning(f"Could not remove main chroma directory: {str(e)}")
-                    # Try alternative approach - rename and delete later
+                    
                     try:
                         import tempfile
                         temp_dir = tempfile.mkdtemp()
@@ -288,7 +287,7 @@ def clear_database():
                 st.error(f"Error clearing database: {str(e)}")
                 return False
         
-        # Force garbage collection again
+       
         gc.collect()
         
         return True
@@ -339,7 +338,7 @@ def calculate_chunk_ids(chunks):
 def update_database():
     """Update the vector database with documents using populate_database.py logic"""
     try:
-        # Check if data directory exists and has PDFs
+        
         if not os.path.exists(DATA_PATH):
             st.error("Data directory does not exist!")
             return False
@@ -385,7 +384,7 @@ def update_database():
                 st.info("No new documents to add - database is up to date!")
                 st.info(f"Total documents in database: {len(existing_ids)}")
             
-            # Properly close the database connection
+            
             del db
             import gc
             gc.collect()
@@ -427,7 +426,7 @@ def query_rag(query_text):
         sources = [doc.metadata.get("id", None) for doc, _score in results]
         scores = [score for doc, score in results]
         
-        # Properly close the database connection
+        
         del db
         import gc
         gc.collect()
@@ -439,7 +438,7 @@ def query_rag(query_text):
 def main():
     initialize_session_state()
     
-    # Sidebar for database management
+   
     with st.sidebar:
         st.markdown('<div class="database-title">Database Management</div>', unsafe_allow_html=True)
         
@@ -458,7 +457,7 @@ def main():
         with col2:
             reset_clicked = st.button("Reset Database", key="reset_db", use_container_width=True)
             if reset_clicked:
-                # Add confirmation
+                
                 if st.session_state.get('confirm_reset', False):
                     if clear_database():
                         st.session_state.database_updated = True
